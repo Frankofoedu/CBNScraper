@@ -46,7 +46,9 @@ namespace CBNScrape
 
             //save list of extracted data to excel
             var bytes = listExtract.ToExcel();
-           await File.WriteAllBytesAsync("sec.xlsx", bytes);
+            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            var filePath = Path.Combine(desktopPath, "sec.xlsx");
+           await File.WriteAllBytesAsync(filePath, bytes);
         }
 
         private static async Task<List<SecuritiesModel>> ExtractPageInfo(string url)
