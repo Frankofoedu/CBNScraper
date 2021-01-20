@@ -32,15 +32,23 @@ namespace CBNScrape
 
             var govtSecurityPage = await scraper.LoadFromWebAsync(BaseUrl + link);
 
-            var pageLinks = govtSecurityPage.DocumentNode.SelectNodes("//*[@id=\"ContentTextinner\"]/a")?
-                .Select(x =>
-                x.Attributes.FirstOrDefault(x => x.Name == "href")?.Value);
-
-
             var listExtract = new List<SecuritiesModel>();
+
+            //extract first page
+            listExtract.AddRange(ExtractData(govtSecurityPage));
+
+
+            //extract subsequent pages
+            var pageLinks = govtSecurityPage.DocumentNode.SelectNodes("//*[@id=\"ContentTextinner\"]/a")?
+               .Select(x =>
+               x.Attributes.FirstOrDefault(x => x.Name == "href")?.Value);
+
+
             foreach (var lk in pageLinks)
             {
-              var extractedInfo = await ExtractPageInfo(BaseUrl + "/rates/" + lk);
+
+                var pageData = await scraper.LoadFromWebAsync(BaseUrl + "/rates/" + lk);
+                var extractedInfo = ExtractData(pageData);
                 listExtract.AddRange(extractedInfo);
             }
 
@@ -51,10 +59,8 @@ namespace CBNScrape
            await File.WriteAllBytesAsync(filePath, bytes);
         }
 
-        private static async Task<List<SecuritiesModel>> ExtractPageInfo(string url)
+        private static List<SecuritiesModel> ExtractData(HtmlDocument pageData)
         {
-            var pageData = await scraper.LoadFromWebAsync(url);
-
             var pageTableRows = pageData.DocumentNode.SelectNodes("//*[@id=\"mytables\"]/tr");
 
             var listSecurityData = new List<SecuritiesModel>();
