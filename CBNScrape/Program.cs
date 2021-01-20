@@ -57,6 +57,10 @@ namespace CBNScrape
             var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             var filePath = Path.Combine(desktopPath, "sec.xlsx");
            await File.WriteAllBytesAsync(filePath, bytes);
+
+            Console.WriteLine($"Excel file saved at {filePath}");
+
+            Console.Read();
         }
 
         private static List<SecuritiesModel> ExtractData(HtmlDocument pageData)
